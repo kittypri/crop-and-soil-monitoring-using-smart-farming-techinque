@@ -1,0 +1,87 @@
+#include<dht.h> 
+#include<SoftwareSerial.h>
+SoftwareSerial mySerial(9,10);
+dht DHT
+#define DHT11_PIN3
+#define echopin 5
+#define trigpin 8
+const int MOISTURE = 0;
+const int THRESHHOLD = 750;
+int maximumRange = 55;
+long duration,distance;
+void setup()
+{
+    mySerial.begin(9600);
+    Serial.begin(9600);
+    pinMode(13,OUTPUT);
+    pinMode(7,OUTPUT);
+    pinMode(echopin,INPUT);
+}
+void Ledstate(int state)
+{
+    digitalWrite(13,state);
+}
+void loop()
+{
+    digitalWrite(trigpin,LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigpin,HIGH);
+    distance=duration/58.2;
+    delay(20);
+    Serial.println("Distance from the brim")
+    Serial.println(distance);
+    int chk=DHT.read11(DHT11_PIN);
+    Serial.println("humidity");
+    Serial.println(DHT.humidity);
+    Serial.println("temperature");
+    Serial.println(DHT.temperature);
+    int moisture=analogRead(MOISTURE);
+    Serial.print("Moisture= ");
+    Serial.println(moisture);
+    if(moisture>THRESHHOLD)
+    {
+        digitalWrite(7,HIGH);
+        SendMessage1();
+    }
+    else
+    {
+        digitalWrite(7,LOW);
+    }
+    if(distance>=25)
+    {
+        Serial.println("going to be empty");
+        LedState(HIGH);
+        SendMessage2();
+    }
+    elseif(distance<=10)
+    {
+        Serial.println("morethan half filled");
+        LedState(LOW);
+    }
+    delay(2000);
+}
+}
+void SendMessage1()
+{
+    mySerial.println("AT+CMGF=1");
+    mySerial.println("AT+CMGF=1");
+    delay(1000);
+    mySerial.println("AT+CMGS=\"+91XXXXXXXXXX/"/r");
+    delay(1000);
+    mySerial.println("Moisture is low");
+    delay(100);
+    mySerial.println((char)26);
+    delay(100);
+}
+void SendMessage2()
+{
+    mySerial.println("AY+CMGF=1");
+    mySerial.println("AT+CMFG=1");
+    delay(1000);
+    mySerial.println("AT+CMGS=/"+91XXXXXXXXXX/"/r");
+    delay(1000);
+    mySerial("reservoir going to be empty-please refill");
+    delay(100);
+    mySerial.println((char)26);
+    delay(1000);
+}
